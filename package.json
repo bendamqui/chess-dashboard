@@ -1,0 +1,21 @@
+{
+    "name": "chess-dashboard",
+    "engines": {
+      "node": "10.16.0"      
+    },
+    "version": "1.0.0",    
+    "private": false,    
+    "scripts": {
+      "postinstall":
+        "npm --prefix web install && npm --prefix api install",      
+      "heroku-postbuild": "npm run --prefix web build",
+      "start": "cd api && NODE_ENV=production node ./bin/www"
+    },
+    "author": "Benoît Michaud <bendamqui@icloud.com>",
+    "license": "MIT",    
+    "cacheDirectories": [
+      "node_modules",
+      "web/node_modules",
+      "api/node_modules"
+    ]
+  }

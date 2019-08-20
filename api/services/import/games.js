@@ -3,8 +3,12 @@ const GameModel = require("./../../models/Game");
 const PositionModel = require("./../../models/Position");
 const Chess = require("chess.js").Chess;
 const chess = new Chess();
+const { IMPORT_KEY } = process.env;
 
-const runImport = async username => {
+const runImport = async (username, importKey) => {
+  if (importKey !== IMPORT_KEY) {
+    throw new Error("Import is disabled");
+  }
   let gameInsertedCount = 0;
   let positionInsertedCount = 0;
   const lastInsert = await GameModel.getMaxFieldValue("end_time");
