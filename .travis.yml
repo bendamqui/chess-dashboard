@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+- 10.16.0
+deploy:
+  provider: heroku
+  app: agile-ravine-64606
+  on: master
+  api_key:
+    secure: R4VQzPR53LMFt/uMFI5WGBQ9/izpSFfOA9pPcuvd30cu2kuDVf6Hh2dYt3NWe2nf3/CkpxpQmH6H+DFZn/+PxmjIxH10ByJDl4sGGGD/9Bw1+VIXZr6gzWlSFMTzXB6vlyfQzcmjjQ7LqJjVqMNdpYvfRy1Av31VXMDzGlIe+1IIV26xnue4kzSiVeaaBEXIa5O3L3sPXA04RV0Cb640gM0pMly5ogSiP8ATGczGNEeoPyOaxiBNvpXfxO+Gif6V7T1YXjS1c2wIhAYdDVvrDs0iSx/Y0Hyqa7cfOvkmmNcePg8i476zBN0k+/BhvtLVyM7q7TREn3POMQPBgs6TemC5c7ARyTqCVWDvC16u/rXUP70vHjPB5deJDSby+FI21lAv6yJ2llTf9KiAA/TsdmJE30FxMH4F2kDQAzsfAd93XpjD7hxrfo1eU2mTalEsE4AWk8i4bbkmSzAS7i/UdN4ui+GVbCau9KKW+TQqa59X5g9bXIn8dRZHSSuiyjGrSYo749pgUJF8vWzAPXi7dpHbveusdSQhlZ1IdhKBK+xdvLbEIgLeUtKD8chuCJ+8LKQ2A5vdQdw/1tSUoK+vMetNXbhVFex74YCwP18qm/DzQdEKCS81OkpKM/6G7IcCLuuwIvZ5RmTBdtXAFjzNEHvdFW98MZHAbzSvPbMjyQ8=

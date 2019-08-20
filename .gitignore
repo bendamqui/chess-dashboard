@@ -3,4 +3,4 @@
 .env
 api/.nyc_output
 api/npm-debug.log
-**/sandbox
+**/sandbox.js
