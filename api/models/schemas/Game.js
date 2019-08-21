@@ -14,16 +14,37 @@ const columns = [
   },
   {
     type: NUMBER,
-    label: "Rating( Max) ",
+    label: "Rating (Max) ",
     field: "ratingMax",
     expression: { $max: "$user.rating" },
     isAggregate: true
   },
   {
     type: NUMBER,
-    label: "Opponent Rating( Max) ",
+    label: "Rating (AVG) ",
+    field: "ratingAvg",
+    expression: { $avg: "$user.rating" },
+    isAggregate: true
+  },
+  {
+    type: NUMBER,
+    label: "Opponent Rating (Max)",
     field: "opponentRatingMax",
     expression: { $max: "$opponent.rating" },
+    isAggregate: true
+  },
+  {
+    type: NUMBER,
+    label: "Opponent Rating (Avg) ",
+    field: "opponentRatingMax",
+    expression: { $avg: "$opponent.rating" },
+    isAggregate: true
+  },
+  {
+    type: NUMBER,
+    label: "Win",
+    field: "winSum",
+    expression: { $sum: { $cond: [{ $eq: ["$result", "win"] }, 1, 0] } },
     isAggregate: true
   },
   {
@@ -56,6 +77,13 @@ const columns = [
   },
   {
     type: NUMBER,
+    label: "Lost",
+    field: "lostSum",
+    expression: { $sum: { $cond: [{ $eq: ["$result", "lost"] }, 1, 0] } },
+    isAggregate: true
+  },
+  {
+    type: NUMBER,
     label: "Lost (Checkmate)",
     field: "checkmateLostSum",
     expression: { $sum: "$metrics.lost.checkmated" },
@@ -84,7 +112,14 @@ const columns = [
   },
   {
     type: NUMBER,
-    label: "Draw (agreed)",
+    label: "Draw",
+    field: "drawSum",
+    expression: { $sum: { $cond: [{ $eq: ["$result", "draw"] }, 1, 0] } },
+    isAggregate: true
+  },
+  {
+    type: NUMBER,
+    label: "Draw (Agreed)",
     field: "agreedDrawSum",
     expression: { $sum: "$metrics.draw.agreed" },
     isAggregate: true
