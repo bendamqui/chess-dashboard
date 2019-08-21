@@ -55,11 +55,11 @@ You can access the app at http://localhost:3000
 * Features
     * Exercices
         * Visualization, show/hide position then find mate in N.
-        * Visualization , show/hide position then find all legal move for a given piece.
+        * Visualization , show/hide position then find all legal moves for a given piece.
         * Visualization , find square color for given coordinates
     * Dashboard
         * Add bar and data table charts types.
-        * Support filter, limit, sort by, date range custom calculations.
+        * Support filter, limit, sort by, date range and custom calculations.
         * Allow resize/reorder charts.
 
 * Code
