@@ -167,7 +167,9 @@ const columns = [
   { type: STRING, label: "Detailed Result", field: "detailedResult" },
   { type: STRING, label: "Result", field: "result" },
   { type: STRING, label: "Time Control", field: "time_control" },
+  { type: STRING, label: "Time Class", field: "time_class" },
   { type: NUMBER, label: "End Time", field: "end_time" },
+  { type: NUMBER, label: "Color", field: "color" },
   {
     type: DATE_PARTS,
     label: "Year",
