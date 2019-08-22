@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Chessboard from "chessboardjsx";
-import { Container, Card, Row, Col } from "shards-react";
+import { Container, Card, CardHeader, Row, Col } from "shards-react";
 import PageTitle from "../components/common/PageTitle";
 import Settings from "../components/visualization/Settings";
 import ActionButtons from "../components/visualization/ActionButtons";
@@ -19,7 +19,8 @@ export default class Visualization extends Component {
       mode: loadingMode,
       position: "",
       draggable: false,
-      squareStyles: {}
+      squareStyles: {},
+      modeText: ""
     };
   }
 
@@ -33,6 +34,7 @@ export default class Visualization extends Component {
       position,
       mode: memorizeMode,
       draggable: false,
+      modeText: "Click on the ready button once you memorized the position.",
       squareStyles: {}
     });
   };
@@ -42,7 +44,9 @@ export default class Visualization extends Component {
       mode: answerMode,
       position: "",
       draggable: true,
-      sparePieces: true
+      sparePieces: true,
+      modeText:
+        "Reproduce the position by dragging the pieces on the chessboard."
     });
   };
 
@@ -126,6 +130,11 @@ export default class Visualization extends Component {
           </Col>
           <Col lg="8">
             <Card>
+              <Row>
+                <Col className="row justify-content-md-center">
+                  <CardHeader>{this.state.modeText}</CardHeader>
+                </Col>
+              </Row>
               <Row>
                 <Col className="row justify-content-md-center">
                   <Chessboard
