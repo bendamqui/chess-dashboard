@@ -16,7 +16,7 @@ const runImport = async (username, importKey) => {
 
   for (url of archives) {
     const games = await getValidGames(url, lastInsert);
-    gameInsertedCount += await importGames(games, username);
+    gameInsertedCount += await importGames(games, username.toLowerCase());
     positionInsertedCount += await importPositions(games);
   }
 
@@ -168,6 +168,8 @@ const setDateField = game => {
 
 const setUserAndOpponent = username => {
   return game => {
+    game.white.username = game.white.username.toLowerCase();
+    game.black.username = game.black.username.toLowerCase();
     if (game.white.username === username) {
       game["user"] = game.white;
       game["opponent"] = game.black;
@@ -186,7 +188,7 @@ const setUserAndOpponent = username => {
 
 const isValidGame = lastInsert => {
   return game => {
-    return game.end_time > lastInsert;
+    return game.end_time > lastInsert && game.rated === true;
   };
 };
 
