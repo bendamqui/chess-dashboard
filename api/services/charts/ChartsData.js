@@ -1,7 +1,30 @@
 const ModelFactory = require("./../../models/ModelFactory");
 const SchemaFactory = require("./../../models/schemas/SchemaFactory");
 const { functor, map } = require("./../../utils/fpUtils");
+const { periods } = require("./../../types/periods");
+const { periodToDateRange } = require("./../../utils/dateUtils");
 
+const matchBuilder = ({ period, filters }, schema) => {
+  return function buildMatch(pipeline) {
+    const $match = {};
+    if (period && period !== periods.all) {
+      const { start, end } = periodToDateRange(period);
+      $match.date = {
+        $gte: start,
+        $lt: end
+      };
+    }
+
+    filters.forEach(({ field, operator, value }) => {
+      $match[field] = { [operator]: value };
+    });
+
+    if (Object.keys($match).length !== 0) {
+      pipeline.push({ $match });
+    }
+    return pipeline;
+  };
+};
 const sortBuilder = (spec, schema) => {
   return function buildSort(pipeline) {
     const { dimensions } = spec;
@@ -67,6 +90,7 @@ const groupByBuilder = (spec, schema) => {
 const getData = ({ spec, dataSource }) => {
   const schema = SchemaFactory(dataSource);
   const pipeline = map(
+    matchBuilder(spec, schema),
     groupByBuilder(spec, schema),
     sortBuilder(spec, schema),
     limitBuilder(spec, schema)
