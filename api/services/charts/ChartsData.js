@@ -4,18 +4,23 @@ const { functor, map } = require("./../../utils/fpUtils");
 const { periods } = require("./../../types/periods");
 const { periodToDateRange } = require("./../../utils/dateUtils");
 
-const matchBuilder = ({ period }, schema) => {
+const matchBuilder = ({ period, filters }, schema) => {
   return function buildMatch(pipeline) {
+    const $match = {};
     if (period && period !== periods.all) {
       const { start, end } = periodToDateRange(period);
-      pipeline.push({
-        $match: {
-          date: {
-            $gte: start,
-            $lt: end
-          }
-        }
-      });
+      $match.date = {
+        $gte: start,
+        $lt: end
+      };
+    }
+
+    filters.forEach(({ field, operator, value }) => {
+      $match[field] = { [operator]: value };
+    });
+
+    if (Object.keys($match).length !== 0) {
+      pipeline.push({ $match });
     }
     return pipeline;
   };

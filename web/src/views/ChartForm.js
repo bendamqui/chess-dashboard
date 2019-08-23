@@ -16,7 +16,8 @@ import PageTitle from "../components/common/PageTitle";
 import Select from "react-select";
 import axios from "axios";
 import { charts as chartTypes } from "./../types/charts";
-import { periods } from "./../types/periods";
+import { periods as periodTypes } from "./../types/periods";
+import { filterOperators as filterOperatorTypes } from "./../types/filterOperators";
 
 class ChartForm extends React.Component {
   constructor(props) {
@@ -25,22 +26,28 @@ class ChartForm extends React.Component {
       metricOptions: {},
       dimensionOptions: {},
       chartTypeOptions: {},
-      periodOptions: {}
+      periodOptions: {},
+      filterOperatorsOptions: {}
     };
     this.state = {
       title: "",
+      filterValue: "",
       chartType: {},
       metrics: [],
       dimensions: [],
       period: {},
       metricOptions: [],
       dimensionOptions: [],
+      filterOperatorsOptions: [
+        { value: filterOperatorTypes.eq, label: "=" },
+        { value: filterOperatorTypes.neq, label: "!=" }
+      ],
       periodOptions: [
-        { value: periods.today, label: "Today" },
-        { value: periods.currentWeek, label: "This Week" },
-        { value: periods.currentMonth, label: "This Month" },
-        { value: periods.currentYear, label: "This Year" },
-        { value: periods.all, label: "All" }
+        { value: periodTypes.today, label: "Today" },
+        { value: periodTypes.currentWeek, label: "This Week" },
+        { value: periodTypes.currentMonth, label: "This Month" },
+        { value: periodTypes.currentYear, label: "This Year" },
+        { value: periodTypes.all, label: "All" }
       ],
       chartTypeOptions: [
         { value: "pie", label: "Pie" },
@@ -68,7 +75,8 @@ class ChartForm extends React.Component {
       "metricOptions",
       "dimensionOptions",
       "chartTypeOptions",
-      "periodOptions"
+      "periodOptions",
+      "filterOperatorsOptions"
     ].forEach(key => {
       this.state[key].forEach(option => {
         this.optionsMap[key][option.value] = option;
@@ -82,23 +90,38 @@ class ChartForm extends React.Component {
 
     if (_id) {
       this.buildOptionsMap();
-      ["metrics", "dimensions"].forEach(key => {
-        spec[key] = spec[key].map(({ field: value, label }) => {
-          return { value, label };
-        });
+      let { metrics, dimensions, filters, period } = spec;
+      let dimensionfilter = {},
+        filterOperator = {},
+        filterValue = "";
+      metrics = metrics.map(({ field: value, label }) => {
+        return { value, label };
+      });
+      dimensions = dimensions.map(({ field: value, label }) => {
+        return { value, label };
       });
 
       chartType = this.optionsMap.chartTypeOptions[chartType];
-      spec.period = this.optionsMap.periodOptions[spec.period];
+      period = this.optionsMap.periodOptions[period];
+      if (filters.length > 0) {
+        dimensionfilter = this.optionsMap.dimensionOptions[filters[0].field];
+        filterOperator = this.optionsMap.filterOperatorsOptions[
+          filters[0].operator
+        ];
+        filterValue = filters[0].value;
+      }
 
       this.setState({
         ...{
           _id,
           title,
           chartType,
-          metrics: spec.metrics,
-          dimensions: spec.dimensions,
-          period: spec.period
+          metrics: metrics,
+          dimensions: dimensions,
+          period,
+          dimensionfilter,
+          filterOperator,
+          filterValue
         }
       });
     }
@@ -108,6 +131,15 @@ class ChartForm extends React.Component {
     await this.getSelectOptions();
     this.preFillForm();
   }
+
+  handleRemoveFilter = e => {
+    e.preventDefault();
+    this.setState({
+      dimensionfilter: {},
+      filterOperator: {},
+      filterValue: ""
+    });
+  };
 
   getSelectOptions() {
     return axios
@@ -129,11 +161,40 @@ class ChartForm extends React.Component {
     );
   };
 
+  hasSomeEmpty = (...values) => {
+    return values.some(value => {
+      if (typeof value === "string") {
+        return value.length === 0;
+      } else if (typeof value === "object") {
+        return Object.keys(value).length === 0;
+      }
+      return true;
+    });
+  };
+
   preparePayload = () => {
-    let { _id, title, chartType, period, metrics, dimensions } = this.state;
+    let {
+      _id,
+      title,
+      chartType,
+      period,
+      metrics,
+      dimensions,
+      dimensionfilter,
+      filterOperator,
+      filterValue
+    } = this.state;
+
     metrics = metrics.map(obj => obj.value);
     dimensions = dimensions.map(obj => obj.value);
-
+    const filters = [];
+    if (!this.hasSomeEmpty(dimensionfilter, filterOperator, filterValue)) {
+      filters.push({
+        field: dimensionfilter.value,
+        operator: filterOperator.value,
+        value: filterValue
+      });
+    }
     return {
       _id,
       title,
@@ -141,13 +202,18 @@ class ChartForm extends React.Component {
       spec: {
         metrics,
         dimensions,
-        period: period.value
+        period: period.value,
+        filters
       }
     };
   };
 
   handleTitleInput = ({ target: { value: title } }) => {
     this.setState({ title });
+  };
+
+  handleFilterValueInput = ({ target: { value: filterValue } }) => {
+    this.setState({ filterValue });
   };
 
   handleSelect = (field, defaultValue) => {
@@ -239,10 +305,50 @@ class ChartForm extends React.Component {
                                 closeMenuOnSelect
                                 onChange={this.handleSelect(
                                   "period",
-                                  periods.all
+                                  periodTypes.all
                                 )}
                                 value={this.state.period}
                                 options={this.state.periodOptions}
+                              />
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col md="12">
+                              <label>
+                                Filter
+                                <button
+                                  className="btn btn-link"
+                                  onClick={this.handleRemoveFilter}
+                                >
+                                  delete
+                                </button>
+                              </label>
+                            </Col>
+                            <Col md="4" className="form-group">
+                              <Select
+                                placeholder="Dimension"
+                                closeMenuOnSelect
+                                onChange={this.handleSelect("dimensionfilter")}
+                                value={this.state.dimensionfilter}
+                                options={this.state.dimensionOptions}
+                              />
+                            </Col>
+                            <Col md="4" className="form-group">
+                              <Select
+                                placeholder="Operator"
+                                closeMenuOnSelect
+                                onChange={this.handleSelect("filterOperator")}
+                                value={this.state.filterOperator}
+                                options={this.state.filterOperatorsOptions}
+                              />
+                            </Col>
+                            <Col md="4" className="form-group">
+                              <FormInput
+                                type="text"
+                                placeholder="Value"
+                                onChange={this.handleFilterValueInput}
+                                value={this.state.filterValue}
                               />
                             </Col>
                           </Row>

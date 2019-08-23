@@ -1,14 +1,18 @@
 function sandbox() {
-    const pipeline = [
-        {
-            $group: {
-                _id: {                    
-                    result: "$detailedResult"   
-                    
-                },                             
-            }
-        },   
-        { $sample: { size: 1 } }     
-    ]
-    return db.games.aggregate(pipeline);
+  const pipeline = [
+    {
+      $match: {
+        color: { $eq: "white" }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          result: "$detailedResult",
+          color: "$color"
+        }
+      }
+    }
+  ];
+  return db.games.aggregate(pipeline);
 }
