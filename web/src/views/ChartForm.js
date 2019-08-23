@@ -16,6 +16,7 @@ import PageTitle from "../components/common/PageTitle";
 import Select from "react-select";
 import axios from "axios";
 import { charts as chartTypes } from "./../types/charts";
+import { periods } from "./../types/periods";
 
 class ChartForm extends React.Component {
   constructor(props) {
@@ -23,15 +24,24 @@ class ChartForm extends React.Component {
     this.optionsMap = {
       metricOptions: {},
       dimensionOptions: {},
-      chartTypeOptions: {}
+      chartTypeOptions: {},
+      periodOptions: {}
     };
     this.state = {
       title: "",
-      metrics: [],
       chartType: {},
+      metrics: [],
       dimensions: [],
+      period: {},
       metricOptions: [],
       dimensionOptions: [],
+      periodOptions: [
+        { value: periods.today, label: "Today" },
+        { value: periods.currentWeek, label: "This Week" },
+        { value: periods.currentMonth, label: "This Month" },
+        { value: periods.currentYear, label: "This Year" },
+        { value: periods.all, label: "All" }
+      ],
       chartTypeOptions: [
         { value: "pie", label: "Pie" },
         { value: "line", label: "Line" }
@@ -54,7 +64,12 @@ class ChartForm extends React.Component {
   };
 
   buildOptionsMap() {
-    ["metricOptions", "dimensionOptions", "chartTypeOptions"].forEach(key => {
+    [
+      "metricOptions",
+      "dimensionOptions",
+      "chartTypeOptions",
+      "periodOptions"
+    ].forEach(key => {
       this.state[key].forEach(option => {
         this.optionsMap[key][option.value] = option;
       });
@@ -74,6 +89,7 @@ class ChartForm extends React.Component {
       });
 
       chartType = this.optionsMap.chartTypeOptions[chartType];
+      spec.period = this.optionsMap.periodOptions[spec.period];
 
       this.setState({
         ...{
@@ -81,7 +97,8 @@ class ChartForm extends React.Component {
           title,
           chartType,
           metrics: spec.metrics,
-          dimensions: spec.dimensions
+          dimensions: spec.dimensions,
+          period: spec.period
         }
       });
     }
@@ -113,7 +130,7 @@ class ChartForm extends React.Component {
   };
 
   preparePayload = () => {
-    let { _id, title, chartType, metrics, dimensions } = this.state;
+    let { _id, title, chartType, period, metrics, dimensions } = this.state;
     metrics = metrics.map(obj => obj.value);
     dimensions = dimensions.map(obj => obj.value);
 
@@ -123,7 +140,8 @@ class ChartForm extends React.Component {
       type: chartType.value,
       spec: {
         metrics,
-        dimensions
+        dimensions,
+        period: period.value
       }
     };
   };
@@ -208,6 +226,23 @@ class ChartForm extends React.Component {
                                 value={this.state.dimensions}
                                 isMulti={this.optionIsMulti("dimensions")}
                                 options={this.state.dimensionOptions}
+                              />
+                            </Col>
+                          </Row>
+
+                          <Row>
+                            <Col md="12" className="form-group">
+                              <label htmlFor="period">Period</label>
+                              <Select
+                                id="period"
+                                placeholder="Period"
+                                closeMenuOnSelect
+                                onChange={this.handleSelect(
+                                  "period",
+                                  periods.all
+                                )}
+                                value={this.state.period}
+                                options={this.state.periodOptions}
                               />
                             </Col>
                           </Row>
